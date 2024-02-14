@@ -238,6 +238,7 @@ class StateManagementBot(ActivityHandler):
             action_response_to_user = ''
             file_content = None
             file_id = ''
+            image_data_bytes = None
             # for item in reversed(messages_json['data']):
             #     # Check the content array
             #     for content in reversed(item['content']):
@@ -269,19 +270,19 @@ class StateManagementBot(ActivityHandler):
                         file_id = content['image_file']['file_id']
                         file_content = StateManagementBot.client.files.content(file_id)
                         image_data_bytes = file_content.read()
-                        with open("./"+file_id+".png", "wb") as file:
-                            file.write(image_data_bytes)
+                        # with open("./"+file_id+".png", "wb") as file:
+                        #     file.write(image_data_bytes)
                 counter += 1
                 if counter == 1:
                     break
 
-            if file_content is not None:
+            if image_data_bytes is not None:
                 reply = Activity(type=ActivityTypes.message)
                 reply.text = action_response_to_user
                 file_path = file_id+".png"
-                with open(file_path, "rb") as in_file:
-                    base64_image = base64.b64encode(in_file.read()).decode()
-
+                # with open(file_path, "rb") as in_file:
+                #     base64_image = base64.b64encode(in_file.read()).decode()
+                base64_image = base64.b64encode(image_data_bytes).decode()
                 # Create an attachment with the base64 image
                 attachment = Attachment(
                     name=file_id+".png",
