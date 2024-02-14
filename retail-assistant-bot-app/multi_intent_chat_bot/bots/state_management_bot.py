@@ -238,9 +238,27 @@ class StateManagementBot(ActivityHandler):
             action_response_to_user = ''
             file_content = None
             file_id = ''
-            for item in reversed(messages_json['data']):
+            # for item in reversed(messages_json['data']):
+            #     # Check the content array
+            #     for content in reversed(item['content']):
+            #         # If there is text in the content array, print it
+            #         if 'text' in content:
+            #             print(StateManagementBot.role_icon(item["role"]),content['text']['value'], "\n")
+            #             action_response_to_user = content['text']['value'] + "\n"
+            #         # If there is an image_file in the content, print the file_id
+            #             if 'image_file' in content:
+            #                 print("Image ID:" , content['image_file']['file_id'], "\n")
+            #                 file_id = content['image_file']['file_id']
+            #                 file_content = StateManagementBot.client.files.content(file_id)
+            #                 image_data_bytes = file_content.read()
+            #                 with open("./"+file_id+".png", "wb") as file:
+            #                     file.write(image_data_bytes)
+            #             else:
+            #                 print("No image file found in the content")
+            counter = 0
+            for item in messages_json['data']:
                 # Check the content array
-                for content in reversed(item['content']):
+                for content in item['content']:
                     # If there is text in the content array, print it
                     if 'text' in content:
                         print(StateManagementBot.role_icon(item["role"]),content['text']['value'], "\n")
@@ -252,7 +270,11 @@ class StateManagementBot(ActivityHandler):
                         file_content = StateManagementBot.client.files.content(file_id)
                         image_data_bytes = file_content.read()
                         with open("./"+file_id+".png", "wb") as file:
-                            file.write(image_data_bytes)                
+                            file.write(image_data_bytes)
+                counter += 1
+                if counter == 1:
+                    break
+
             if file_content is not None:
                 reply = Activity(type=ActivityTypes.message)
                 reply.text = action_response_to_user
@@ -266,6 +288,7 @@ class StateManagementBot(ActivityHandler):
                     content_type="image/png",
                     content_url=f"data:image/png;base64,{base64_image}"
                 )
+                reply.attachments = [attachment]
                 await turn_context.send_activity(reply)
             else:
                 await turn_context.send_activity(
